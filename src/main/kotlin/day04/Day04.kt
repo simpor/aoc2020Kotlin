@@ -35,83 +35,64 @@ fun main() {
     part1(input) test Pair(192, "Part1 - 192 Valid passports")
 
 
+    val allFalse = "eyr:1972 cid:100\n" +
+            "hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926\n" +
+            "\n" +
+            "iyr:2019\n" +
+            "hcl:#602927 eyr:1967 hgt:170cm\n" +
+            "ecl:grn pid:012533040 byr:1946\n" +
+            "\n" +
+            "hcl:dab227 iyr:2012\n" +
+            "ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277\n" +
+            "\n" +
+            "hgt:59cm ecl:zzz\n" +
+            "eyr:2038 hcl:74454a iyr:2023\n" +
+            "pid:3556412378 byr:2007"
 
 
-    part2(
-        "eyr:1972 cid:100\n" +
-                "hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926\n" +
-                "\n" +
-                "iyr:2019\n" +
-                "hcl:#602927 eyr:1967 hgt:170cm\n" +
-                "ecl:grn pid:012533040 byr:1946\n" +
-                "\n" +
-                "hcl:dab227 iyr:2012\n" +
-                "ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277\n" +
-                "\n" +
-                "hgt:59cm ecl:zzz\n" +
-                "eyr:2038 hcl:74454a iyr:2023\n" +
-                "pid:3556412378 byr:2007"
-    ) test Pair(0, "Test 2 - 0 Valid passports")
+    val allValid = "pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980\n" +
+            "hcl:#623a2f\n" +
+            "\n" +
+            "eyr:2029 ecl:blu cid:129 byr:1989\n" +
+            "iyr:2014 pid:896056539 hcl:#a97842 hgt:165cm\n" +
+            "\n" +
+            "hcl:#888785\n" +
+            "hgt:164cm byr:2001 iyr:2015 cid:88\n" +
+            "pid:545766238 ecl:hzl\n" +
+            "eyr:2022\n" +
+            "\n" +
+            "iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719"
 
-    part2(
-        "pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980\n" +
-                "hcl:#623a2f\n" +
-                "\n" +
-                "eyr:2029 ecl:blu cid:129 byr:1989\n" +
-                "iyr:2014 pid:896056539 hcl:#a97842 hgt:165cm\n" +
-                "\n" +
-                "hcl:#888785\n" +
-                "hgt:164cm byr:2001 iyr:2015 cid:88\n" +
-                "pid:545766238 ecl:hzl\n" +
-                "eyr:2022\n" +
-                "\n" +
-                "iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719"
-    ) test Pair(4, "Test 2 - 4 Valid passports")
-
+    part2(allFalse) test Pair(0, "Test 2 - 0 Valid passports")
+    part2(allValid) test Pair(4, "Test 2 - 4 Valid passports")
     part2(input) test Pair(101, "Part 2 - 101 Valid passports")
 
+    part2Regexp(allFalse) test Pair(0, "part2Regexp - Test 2 - 0 Valid passports")
+    part2Regexp(allValid) test Pair(4, "part2Regexp - Test 2 - 4 Valid passports")
+    part2Regexp(input) test Pair(101, "part2Regexp - Part 2 - 101 Valid passports")
 
 }
 
-private fun part1(testInput: String): Int {
-
-    val split1 = testInput.split("\n\n".toRegex())
-    val data = split1
-        .map { a ->
-            a.split(" ", "\n").map {
-                val split = it.split(":")
-                Pair(split[0], split[1])
-            }.toMap()
-        }
-
-
-    val passfieldCheck = data.map { passport ->
-        passFields.map { Pair(it.key, passport.containsKey(it.key)) }.toMap()
-    }
-
-    val counts = passfieldCheck.map { passport ->
+private fun part1(input: String): Int {
+    return input.split("\n\n".toRegex()).map { a ->
+        val map = a.split(" ", "\n").map {
+            val split = it.split(":")
+            Pair(split[0], split[1])
+        }.toMap()
+        val passport = passFields.map { Pair(it.key, map.containsKey(it.key)) }.toMap()
         if (passport.values.count { it } == passFields.size) {
             true
         } else passport.filterKeys { it != "cid" }.values.count { it } == passFields.filterKeys { it != "cid" }.count()
-    }
-
-
-    return counts.count { it }
+    }.count { it }
 }
 
-private fun part2(testInput: String): Int {
-
-    val split1 = testInput.split("\n\n".toRegex())
-    val data = split1
-        .map { a ->
-            a.split(" ", "\n").map {
-                val split = it.split(":")
-                Pair(split[0], split[1])
-            }.toMap()
-        }
-
-    // check all fields
-    val lastCheck = data.filter { passports ->
+private fun part2(input: String): Int {
+    return input.split("\n\n".toRegex()).map { a ->
+        a.split(" ", "\n").map {
+            val split = it.split(":")
+            Pair(split[0], split[1])
+        }.toMap()
+    }.filter { passports ->
         val test = listOf(
             byrCheck(passports["byr"].orEmpty()),
             iyrCheck(passports["iyr"].orEmpty()),
@@ -123,11 +104,7 @@ private fun part2(testInput: String): Int {
             cidCheck(passports["cid"].orEmpty()),
         )
         test.count { it } == 8
-    }
-
-
-
-    return lastCheck.size
+    }.size
 }
 
 fun byrCheck(input: String): Boolean {
@@ -177,4 +154,32 @@ fun pidCheck(input: String): Boolean {
 
 fun cidCheck(input: String): Boolean {
     return true
+}
+
+
+val DIG_4 = "(\\d{4})".toRegex()
+val CM = "(\\d+)cm".toRegex()
+val IN = "(\\d+)in".toRegex()
+
+fun part2Regexp(input: String): Int {
+    val passports = input.split("\n\n".toRegex())
+    val validValues = passports.map { s -> s.split("\\s+".toRegex()).filter { validator(it) } }
+    return validValues.map { a ->
+        a.distinctBy { it.take(3) }
+    }.filter { it.size == 7 }.size
+}
+
+fun validator(s: String): Boolean {
+    val pair = s.split(":").let { Pair(it[0], it[1]) }
+    return when {
+        "byr" == pair.first && DIG_4.matches(pair.second) -> pair.second.toInt() in 1920..2002
+        "iyr" == pair.first && DIG_4.matches(pair.second) -> pair.second.toInt() in 2010..2020
+        "eyr" == pair.first && DIG_4.matches(pair.second) -> pair.second.toInt() in 2020..2030
+        "hgt" == pair.first && CM.matches(pair.second) -> pair.second.replace("cm", "").toInt() in 150..193
+        "hgt" == pair.first && IN.matches(pair.second) -> pair.second.replace("in", "").toInt() in 59..76
+        "hcl" == pair.first && "^\\#((\\d|[a-f]){6})".toRegex().matches(pair.second) -> true
+        "ecl" == pair.first && "(amb)|(blu)|(brn)|(gry)|(grn)|(hzl)|(oth)".toRegex().matches(pair.second) -> true
+        "pid" == pair.first && "\\d{9}".toRegex().matches(pair.second) -> true
+        else -> false
+    }
 }
