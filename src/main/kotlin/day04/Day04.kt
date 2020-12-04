@@ -1,6 +1,10 @@
 package day04
 
+import readText
+import test
+
 fun main() {
+    val input = readText("04.txt")
     val testInput = "ecl:gry pid:860033327 eyr:2020 hcl:#fffffd\n" +
             "byr:1937 iyr:2017 cid:147 hgt:183cm\n" +
             "\n" +
@@ -16,6 +20,13 @@ fun main() {
             "iyr:2011 ecl:brn hgt:59in"
 
 
+    part1(testInput) test Pair(2, "Test - 2 Valid passports")
+    part1(input) test Pair(2, "Test - 2 Valid passports")
+
+
+}
+
+private fun part1(testInput: String): Int {
     val passFields = mapOf(
         "byr" to "(Birth Year)",
         "iyr" to "(Issue Year)",
@@ -27,14 +38,26 @@ fun main() {
         "cid" to "(Country ID)"
     )
 
-    val data = testInput.split("\n\n")
+    val split1 = testInput.split("\n\n".toRegex())
+    val data = split1
         .map { a ->
-            a.split(" \n").map {
+            a.split(" ", "\n").map {
                 val split = it.split(":")
                 Pair(split[0], split[1])
             }.toMap()
         }
 
 
+    val passfieldCheck = data.map { passport ->
+        passFields.map { Pair(it.key, passport.containsKey(it.key)) }.toMap()
+    }
 
+    passfieldCheck.map { passport ->
+        if (passport.values.count() { it } == passFields.size) true
+        else
+
+    }
+
+
+    return 0
 }
