@@ -52,12 +52,16 @@ private fun part1(testInput: String): Int {
         passFields.map { Pair(it.key, passport.containsKey(it.key)) }.toMap()
     }
 
-    passfieldCheck.map { passport ->
-        if (passport.values.count() { it } == passFields.size) true
-        else
-
+    val counts = passfieldCheck.map { passport ->
+        if (passport.values.count { it } == passFields.size) {
+            true
+        } else if (passport.filterKeys { it != "cid" }.values.count { it } == passFields.filterKeys { it != "cid" }.count()) {
+            true
+        } else {
+            false
+        }
     }
 
 
-    return 0
+    return counts.count { it }
 }
