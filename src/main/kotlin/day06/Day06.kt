@@ -32,6 +32,38 @@ fun main() {
 
     part2Smaller(testInput) test Pair(6, "test part 2 - Should be 6")
     part2Smaller(input) test Pair(3232, "Part 2 - Should be 3232")
+
+
+    // other persons solutions
+
+    input.split("\n\n").map { group ->
+        group.split("\n").map { it.toCharArray().toList() }
+            .flatten()
+            .groupBy { it }.size
+    }.sum().let { println("Part 1: $it") }
+
+    input.split("\n\n").map { group ->
+        group.split("\n").map { it.toCharArray().toList() }
+            .flatten()
+            .groupBy { it }
+            .map { it.value }
+            .filter { it.size == group.split("\n").size }.size
+    }.sum().let { println("Part 2: $it") }
+
+
+    val groups = input.split("\n\n")
+    groups.map {
+        it.replace("\n", "").toSet().size
+    }.sum().let { println(it) }
+
+    groups.map {
+        val x = it.split("\n").map {
+            it.toSet()
+        }
+        x.fold(x.first()) { acc, value ->
+            acc.intersect(value)
+        }.size
+    }.sum().let { println(it) }
 }
 
 fun part1(input: String): Int {
