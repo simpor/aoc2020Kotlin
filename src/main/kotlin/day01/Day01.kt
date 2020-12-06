@@ -1,6 +1,6 @@
 package day01
 
-import readLines
+import AoCUtils.readLines
 
 fun main() {
     part1()

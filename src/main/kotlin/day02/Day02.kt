@@ -1,7 +1,7 @@
 package day01
 
-import readLines
-import test
+import AoCUtils.readLines
+import AoCUtils.test
 
 data class Password(val num1: Int, val num2: Int, val c: Char, val pass: String)
 

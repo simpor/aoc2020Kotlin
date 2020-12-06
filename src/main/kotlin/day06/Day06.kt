@@ -1,7 +1,7 @@
 package day06
 
-import readText
-import test
+import AoCUtils.readText
+import AoCUtils.test
 
 fun main() {
     val testInput = "abc\n" +

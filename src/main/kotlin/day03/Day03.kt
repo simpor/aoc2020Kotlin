@@ -1,7 +1,7 @@
 package day03
 
-import readLines
-import test
+import AoCUtils.readLines
+import AoCUtils.test
 
 fun main() {
     val input = readLines("03.txt")

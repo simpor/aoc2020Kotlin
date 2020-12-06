@@ -1,7 +1,7 @@
 package day05
 
-import readLines
-import test
+import AoCUtils.readLines
+import AoCUtils.test
 
 fun main() {
 

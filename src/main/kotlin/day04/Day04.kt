@@ -1,7 +1,7 @@
 package day04
 
-import readText
-import test
+import AoCUtils.readText
+import AoCUtils.test
 
 val passFields = mapOf(
     "byr" to "(Birth Year)",
