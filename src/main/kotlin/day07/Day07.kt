@@ -21,6 +21,11 @@ val testInput2 = "shiny gold bags contain 2 dark red bags.\n" +
         "dark blue bags contain 2 dark violet bags.\n" +
         "dark violet bags contain no other bags."
 
+const val yourBag = "shiny gold"
+const val noOther = "no other"
+
+data class BagRule(val count: Int, val bag: String)
+
 fun main() {
     val input = AoCUtils.readText("07.txt")
 
@@ -33,88 +38,66 @@ fun main() {
 }
 
 fun part1(input: String): Int {
-
     val rules = createRules(input)
-    val yourBag = "shiny gold"
 
     val map = rules.map { rule ->
         val from = rule.key
-        if (from == yourBag) {
-            Pair(from, false)
-        } else {
-            var loop = true
-            val newRules = mutableListOf<String>()
-            newRules.addAll(rule.value.map { it.second })
-            var goesToYourBag = false
-            while (loop) {
-                when (val to = newRules.removeAt(0)) {
-                    yourBag -> {
-                        loop = false
-                        goesToYourBag = true
-                    }
-                    "no other" -> {
-                    }
-                    else -> {
-                        newRules.addAll(rules[to].orEmpty().map { it.second })
-                    }
+        val newRules = mutableListOf<String>()
+        newRules.addAll(rule.value.map { it.bag })
+        var goesToYourBag = false
+        while (newRules.isNotEmpty()) {
+            when (val to = newRules.removeAt(0)) {
+                yourBag -> {
+                    newRules.clear()
+                    goesToYourBag = true
                 }
-
-                if (newRules.isEmpty()) {
-                    loop = false
+                noOther -> {
+                }
+                else -> {
+                    newRules.addAll(rules[to].orEmpty().map { it.bag })
                 }
             }
-            Pair(from, goesToYourBag)
         }
+        Pair(from, goesToYourBag)
     }
+
     return map.count { it.second }
 }
 
 fun part2(input: String): Int {
-
     val rules = createRules(input)
 
     data class RuleCalc(val multiplier: Int, val count: Int, val bag: String)
 
-    val yourBag = "shiny gold"
     val newRules = mutableListOf<RuleCalc>()
-
-    val rule = rules[yourBag].orEmpty()
-    var loop = true
-
-    newRules.addAll(rule.map { RuleCalc(1, it.first, it.second) })
+    newRules.addAll(rules[yourBag].orEmpty().map { rule -> RuleCalc(1, rule.count, rule.bag) })
     val bags = mutableListOf<RuleCalc>()
-    while (loop) {
+    while (newRules.isNotEmpty()) {
         val to = newRules.removeAt(0)
         bags.add(to)
-        when (to.bag) {
-            "no other" -> {
-            }
-            else -> {
-                val list = rules[to.bag].orEmpty().map { RuleCalc(to.multiplier * to.count, it.first, it.second) }
-                newRules.addAll(list)
-            }
-        }
-
-        if (newRules.isEmpty()) {
-            loop = false
+        if (to.bag != noOther) {
+            newRules.addAll(rules[to.bag].orEmpty().map { rule ->
+                RuleCalc(to.multiplier * to.count, rule.count, rule.bag)
+            })
         }
     }
     return bags.map { it.multiplier * it.count }.sum()
 }
 
-private fun createRules(input: String): Map<String, List<Pair<Int, String>>> {
-    return input.lines().map { rule ->
+
+private fun createRules(input: String): Map<String, List<BagRule>> {
+    return input.replace(".", "").replace("bags", "").replace("bag", "").lines().map { rule ->
         val split = rule.split(" contain ")
-        val to = split[0].replace("bags", "").replace("bag", "").trim()
+        val to = split[0].trim()
         val from = split[1]
         Pair(to, from.split(",").map { s ->
-            val string = s.replace(".", "").replace("bags", "").replace("bag", "").trim()
-            if (string == "no other")
-                Pair(0, string)
+            val string = s.trim()
+            if (string == noOther)
+                BagRule(0, string)
             else {
                 val num = string.substringBefore(" ").trim()
                 val bag = string.substringAfter(" ").trim()
-                Pair(num.toInt(), bag)
+                BagRule(num.toInt(), bag)
             }
         })
     }.toMap()
