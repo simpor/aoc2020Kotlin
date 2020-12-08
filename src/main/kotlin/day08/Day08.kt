@@ -26,6 +26,7 @@ fun main() {
 
 enum class InstructionType { acc, jmp, nop }
 data class Instruction(val type: InstructionType, val value: Int, var executed: Boolean = false)
+data class ProgramResult(val finished: Boolean, val accumulator: Int)
 
 fun String.toType(): InstructionType = when {
     this == "acc" -> InstructionType.acc
@@ -35,43 +36,12 @@ fun String.toType(): InstructionType = when {
 }
 
 fun part1(input: String): Int {
-
-    val instructions = input.lines().map {
-        val split = it.split(" ")
-        Instruction(split[0].toType(), split[1].toInt())
-    }
-    var accumulator = 0
-    var index = 0
-    while (true) {
-        val instruction =
-            instructions[index] ?: throw Exception("Can't execute at index: $index for instructions: $instructions")
-        if (instruction.executed) {
-            break
-        }
-        when (instruction.type) {
-            InstructionType.acc -> {
-                accumulator += instruction.value
-                index++
-            }
-            InstructionType.jmp -> {
-                index += instruction.value
-            }
-            InstructionType.nop -> {
-                index++
-            }
-        }
-        instruction.executed = true
-    }
-
-    return accumulator
+    return runComputer(parseInstructions(input)).accumulator
 }
 
 fun part2(input: String): Int {
 
-    val instructions = input.lines().map {
-        val split = it.split(" ")
-        Instruction(split[0].toType(), split[1].toInt())
-    }
+    val instructions = parseInstructions(input)
 
     val instructionsToTest = instructions.mapIndexed { index, instruction ->
         when (instruction.type) {
@@ -91,30 +61,31 @@ fun part2(input: String): Int {
         }
     }.filterNotNull()
 
-    var result = Pair(0, false)
-
     for (i in instructionsToTest) {
         i.forEach { it.executed = false }
-        result = runComputer(i)
-        if (result.second) {
-            break
+        val result = runComputer(i)
+        if (result.finished) {
+            return result.accumulator
         }
     }
 
 
-    return result.first
+    return -1
 }
 
-private fun runComputer(instructions: List<Instruction>): Pair<Int, Boolean> {
+private fun parseInstructions(input: String): List<Instruction> = input.lines().map {
+    val split = it.split(" ")
+    Instruction(split[0].toType(), split[1].toInt())
+}
+
+
+private fun runComputer(instructions: List<Instruction>): ProgramResult {
     var accumulator = 0
     var index = 0
-    var foundLoop = false
     while (index < instructions.size) {
-        val instruction =
-            instructions[index] ?: throw Exception("Can't execute at index: $index for instructions: $instructions")
+        val instruction = instructions[index]
         if (instruction.executed) {
-            foundLoop = true
-            break
+            return ProgramResult(false, accumulator)
         }
         when (instruction.type) {
             InstructionType.acc -> {
@@ -130,6 +101,6 @@ private fun runComputer(instructions: List<Instruction>): Pair<Int, Boolean> {
         }
         instruction.executed = true
     }
-    return Pair(accumulator, !foundLoop)
+    return ProgramResult(true, accumulator)
 }
 
