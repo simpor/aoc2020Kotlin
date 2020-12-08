@@ -1,3 +1,4 @@
+import com.github.mm.coloredconsole.colored
 import java.io.File
 
 data class Point(val x: Int, val y: Int)
@@ -20,7 +21,14 @@ object AoCUtils {
 
 
     infix fun <T> T.test(pair: Pair<T, String>) =
-        if (this == pair.first) println("PASS - $this is correct - " + pair.second) else println("FAIL - $this does not match ${pair.first} - " + pair.second)
+        if (this == pair.first)
+            colored {
+                println("PASS - ${this@test} is correct - ${pair.second}".cyan.bold)
+            }
+        else
+            colored {
+                println("FAIL - ${this@test} does not match ${pair.first} - ${pair.second}".red.bold)
+            }
 
 
     fun <T> uniqueNumber(input: List<T>): List<List<T>> {

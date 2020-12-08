@@ -68,8 +68,6 @@ fun part2(input: String): Int {
             return result.accumulator
         }
     }
-
-
     return -1
 }
 
