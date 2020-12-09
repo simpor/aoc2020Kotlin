@@ -50,25 +50,19 @@ fun part1(input: String, startIndex: Int): Long {
                 .flatten()
                 .distinct()
 
-
         val element = allNums[a]
-        if (element == 127L) {
-            val a = 0
-        }
         if (!sums.contains(element))
             return element
     }
 
     return -1
 }
-// fel: 166022427
 
 fun part2(input: String, startNum: Int): Long {
     val allNums = input.lines().map { it.toLong() }
 
     val missingNum = part1(input, startNum)
-    println("Starting to find nums")
-    for (a in 0 until allNums.size) {
+    for (a in allNums.indices) {
         val startA = allNums[a]
         var sums = allNums[a]
         val list = mutableListOf(startA)
@@ -77,7 +71,6 @@ fun part2(input: String, startNum: Int): Long {
             list.add(currentB)
             sums += currentB
             if (sums == missingNum) {
-
                 val newList = list.sorted()
                 val smallest = newList.first()
                 val biggest = newList.last()
