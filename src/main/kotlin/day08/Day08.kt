@@ -1,4 +1,4 @@
-package day09
+package day08
 
 import AoCUtils
 import AoCUtils.test
