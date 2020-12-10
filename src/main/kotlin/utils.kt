@@ -52,7 +52,7 @@ object AoCUtils {
     fun <T> allCombos(set: List<T>, k: Int): List<List<T>> {
         val n = set.size
         val list = mutableListOf<MutableList<T>>()
-        allCombosRec(set, mutableListOf(), n, k, list);
+        allCombosRec(set, mutableListOf(), n, k, list)
         return list
     }
 

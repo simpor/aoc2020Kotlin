@@ -52,29 +52,35 @@ val input = AoCUtils.readText("10.txt")
 fun main() {
     part1(testInput1) test Pair(35, "test 1 part 1 should be 35")
     part1(testInput2) test Pair(220, "test 1 part 1 should be 220")
-    part1(input) test Pair(0, "part 1 should be 0")
+    part1(input) test Pair(2738, "part 1 should be 2738")
 
-//    part2(testInput) test Pair(0, "test 2 part 2 should be 0")
-//    part2(input) test Pair(0, "part 2 should be 0")
+    part2(testInput1) test Pair(8, "test 1 part 2 should be 8")
+    part2(testInput2) test Pair(19208, "test 1 part 2 should be 19208")
+    part2(input) test Pair(74049191673856, "part 2 should be 74 049 191 673 856")
 
 }
 
 data class Adapter(val diff1: Int = 0, val diff2: Int = 0, val diff3: Int = 0, val last: Int = 0)
 
 fun part1(input: String): Int {
-    val adapters = input.lines().map { it.toInt() }
-    val maxVoltage = adapters.maxByOrNull { it }!! + 3
-    return adapters.sorted().reversed().foldRight(Adapter(), { num, adapter ->
-        if (num - adapter.last == 1)
-            adapter.copy(diff1 = adapter.diff1+1, last = num)
-        else if (num - adapter.last == 2)
-            adapter.copy(diff2 = adapter.diff2+1, last = num)
-        else
-            adapter.copy(diff3 = adapter.diff3+1, last = num)
-    }).let { it.diff1 * (it.diff3+1) }
+    return input.lines().map { it.toInt() }.sorted().reversed().foldRight(Adapter(), { num, adapter ->
+        when {
+            num - adapter.last == 1 -> adapter.copy(diff1 = adapter.diff1 + 1, last = num)
+            num - adapter.last == 2 -> adapter.copy(diff2 = adapter.diff2 + 1, last = num)
+            else -> adapter.copy(diff3 = adapter.diff3 + 1, last = num)
+        }
+    }).let { it.diff1 * (it.diff3 + 1) }
 }
 
-fun part2(input: String): Int {
-    return 0
+fun part2(input: String): Long {
+    val adapters = input.lines().map { it.toLong() }.sorted()
+    val result = mutableMapOf(0L to 1L)
+    for (i in adapters) {
+        val a = result.getOrDefault(i - 1, 0)
+        val b = result.getOrDefault(i - 2, 0)
+        val c = result.getOrDefault(i - 3, 0)
+        result[i] = a + b + c
+    }
+    return result.getValue(adapters.last())
 }
 
