@@ -56,7 +56,7 @@ fun main() {
 
     part2(testInput1) test Pair(8, "test 1 part 2 should be 8")
     part2(testInput2) test Pair(19208, "test 1 part 2 should be 19208")
-    part2(input) test Pair(74049191673856, "part 2 should be 74 049 191 673 856")
+    part2(input) test Pair(74_049_191_673_856, "part 2 should be 74 049 191 673 856")
 
 }
 

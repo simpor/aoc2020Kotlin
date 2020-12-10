@@ -1,11 +1,11 @@
-package day11
+package day12
 
 import AoCUtils
 import AoCUtils.test
 
 val testInput = ""
 
-val input = AoCUtils.readText("XX.txt")
+val input = AoCUtils.readText("12.txt")
 
 fun main() {
     part1(testInput) test Pair(0, "test 1 part 1 should be 0")
