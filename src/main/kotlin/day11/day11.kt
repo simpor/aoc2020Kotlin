@@ -18,7 +18,7 @@ val input = AoCUtils.readText("11.txt")
 
 fun main() {
     part1(testInput) test Pair(37, "test 1 part 1 should be 37")
-    part1(input) test Pair(0, "part 1 should be 0")
+    part1(input) test Pair(2299, "part 1 should be 2299")
 
     part2(testInput) test Pair(26, "test 2 part 2 should be 26")
     part2(input) test Pair(0, "part 2 should be 0")
@@ -47,6 +47,7 @@ fun part1(input: String): Int {
     }.flatten()
         .associate { t -> Pair(Pair(t.first, t.second), t.third) }.toMutableMap()
 
+    val seatsAroundPos = map.keys.map { Pair(it, getSurroundingSeats(map, it)) }.toMap()
 
     var notChanged = false
     do {
@@ -55,7 +56,7 @@ fun part1(input: String): Int {
         map.forEach { (pos, status) ->
             when (status) {
                 Status.Empty -> {
-                    val seatsAround = getSurroundingSeats(map, pos)
+                    val seatsAround = seatsAroundPos[pos]!!
                     val occupied = seatsAround.count { map[it] == Status.Occupied }
                     if (occupied == 0) {
                         newMap[pos] = Status.Occupied
@@ -66,7 +67,7 @@ fun part1(input: String): Int {
 
                 }
                 Status.Occupied -> {
-                    val seatsAround = getSurroundingSeats(map, pos)
+                    val seatsAround = seatsAroundPos[pos]!!
                     val occupied = seatsAround.count { map[it] == Status.Occupied }
                     if (occupied >= 4) {
                         newMap[pos] = Status.Empty
@@ -114,7 +115,7 @@ fun part2(input: String): Int {
         map.forEach { (pos, status) ->
             when (status) {
                 Status.Empty -> {
-                    val seatsAround = seatsInSight[pos]!!
+                    val seatsAround = seatsInSight[pos].orEmpty()
                     val occupied = seatsAround.count { map[it] == Status.Occupied }
                     if (occupied == 0) {
                         newMap[pos] = Status.Occupied
@@ -125,9 +126,9 @@ fun part2(input: String): Int {
 
                 }
                 Status.Occupied -> {
-                    val seatsAround = seatsInSight[pos]!!
+                    val seatsAround = seatsInSight[pos].orEmpty()
                     val occupied = seatsAround.count { map[it] == Status.Occupied }
-                    if (occupied >= 4) {
+                    if (occupied >= 5) {
                         newMap[pos] = Status.Empty
                         notChanged = true
                     }
@@ -147,14 +148,14 @@ fun getSeatInSight(map: Map<Pair<Int, Int>, Status>, pos: Pair<Int, Int>): List<
         nextVisibleSeat(map, pos, 1, -1),
         nextVisibleSeat(map, pos, 1, 0),
 
-        nextVisibleSeat(map, pos, 1, 1),
         nextVisibleSeat(map, pos, -1, 1),
-        nextVisibleSeat(map, pos, 0, 1),
-
-        nextVisibleSeat(map, pos, 1, 1),
         nextVisibleSeat(map, pos, -1, -1),
+        nextVisibleSeat(map, pos, -1, 0),
 
-        ).filter { p -> map.containsKey(p) }
+        nextVisibleSeat(map, pos, 0, 1),
+        nextVisibleSeat(map, pos, 0, -1),
+
+        ).filter { p -> map.containsKey(p) }.distinct()
 }
 
 fun nextVisibleSeat(map: Map<Pair<Int, Int>, Status>, pos: Pair<Int, Int>, xd: Int, yd: Int): Pair<Int, Int> {
