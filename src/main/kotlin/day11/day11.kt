@@ -21,7 +21,7 @@ fun main() {
     part1(input) test Pair(2299, "part 1 should be 2299")
 
     part2(testInput) test Pair(26, "test 2 part 2 should be 26")
-    part2(input) test Pair(0, "part 2 should be 0")
+    part2(input) test Pair(2047, "part 2 should be 2047")
 
 }
 
