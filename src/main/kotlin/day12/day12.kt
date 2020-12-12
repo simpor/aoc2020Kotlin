@@ -1,8 +1,10 @@
 package day12
 
 import AoCUtils
+import AoCUtils.readText
 import AoCUtils.test
 import kotlin.math.abs
+import kotlin.math.cos
 
 val testInput = "F10\n" +
         "N3\n" +
@@ -33,6 +35,16 @@ fun main() {
     part2(testInput2) test Pair(286, "test 2 part 2 should be 286")
     part2(testInput) test Pair(286, "test 2 part 2 should be 286")
     part2(input) test Pair(45763, "part 2 should be 45763")
+
+
+    // peter f
+    part1(readText("12-2.txt")) test Pair(562, "Peter part 1 should be 562")
+    part2(readText("12-2.txt")) test Pair(101860, "Peter part 2 should be 101860")
+
+    // ray
+    part1(readText("12-3.txt")) test Pair(508, "Peter part 1 should be 508")
+    part2(readText("12-3.txt")) test Pair(30761, "Peter part 2 should be 30761")
+
 }
 
 data class Position(var x: Long, var y: Long)
@@ -68,6 +80,7 @@ fun part1(input: String): Long {
             "N" -> currentPoint.y += p.second
             "E" -> currentPoint.x += p.second
             "S" -> currentPoint.y -= p.second
+//            "W" -> currentPoint.y += p.second
             "W" -> currentPoint.x -= p.second
 
             else -> throw Exception("Unknown movement: $p")
