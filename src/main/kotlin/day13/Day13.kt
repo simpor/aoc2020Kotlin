@@ -60,8 +60,36 @@ fun part2(input: String): Long {
     var num = 1L
     var num2 = 1L
     var num3 = 1L
-    for(i in buses.indices){
-        val bus = buses[i]
+    println("unsorted")
+    buses.forEach { bus ->
+        num = lcm(num, (bus.id + bus.timeStamp))
+        num2 = lcm(num2, (bus.id))
+        num3 = lcm(num3, (bus.id - bus.timeStamp))
+        println()
+        println(num)
+        println(num2)
+        println(num3)
+    }
+
+    num = 1L
+    num2 = 1L
+    num3 = 1L
+    println("sorted")
+    buses.sortedBy { it.id }.forEach { bus ->
+        num = lcm(num, (bus.id + bus.timeStamp))
+        num2 = lcm(num2, (bus.id))
+        num3 = lcm(num3, (bus.id - bus.timeStamp))
+        println()
+        println(num)
+        println(num2)
+        println(num3)
+    }
+
+    num = 1L
+    num2 = 1L
+    num3 = 1L
+    println("sorted r")
+    buses.sortedBy { it.id }.reversed().forEach { bus ->
         num = lcm(num, (bus.id + bus.timeStamp))
         num2 = lcm(num2, (bus.id))
         num3 = lcm(num3, (bus.id - bus.timeStamp))
