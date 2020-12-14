@@ -33,7 +33,7 @@ fun main() {
         "xxx\n" +
                 "1789,37,47,1889"
     ) test Pair(1202161486, "test 2 part 2 should be 1202161486")
-    part2(input) test Pair(0, "part 2 should be 0")
+    part2(input) test Pair(213890632230818, "part 2 should be 213890632230818")
 
 }
 
@@ -56,28 +56,17 @@ fun part2(input: String): Long {
             .filter { it.first != "x" }
             .map { Bus(it.first.toLong(), it.second.toLong()) }
 
+    var multipel = 1L
+    var result = 0L
 
-    var num = 1L
-    var num2 = 1L
-    var num3 = 1L
-    for(i in buses.indices){
-        val bus = buses[i]
-        num = lcm(num, (bus.id + bus.timeStamp))
-        num2 = lcm(num2, (bus.id))
-        num3 = lcm(num3, (bus.id - bus.timeStamp))
-        println()
-        println(num)
-        println(num2)
-        println(num3)
+    buses.forEach { bus ->
+        while ((result + bus.timeStamp) % bus.id != 0L) {
+            result += multipel
+        }
+        multipel *= bus.id
     }
 
-
-
-    if (checkCondition(buses, num)) {
-        return num
-    }
-
-    return 0
+    return result
 }
 
 fun checkCondition(buses: List<Bus>, timeToCheck: Long): Boolean {
