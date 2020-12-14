@@ -55,57 +55,56 @@ fun part2(input: String): Long {
         }
             .filter { it.first != "x" }
             .map { Bus(it.first.toLong(), it.second.toLong()) }
+    var step = buses[0].id
+    var busToCheck = buses[1]
+    var currentBus = 1
+    var counter = 0L
+    //println("For bus: $busToCheck counter: $counter")
+    while (true) {
+        counter += step
+        if ((counter % (busToCheck.id + busToCheck.timeStamp)) == 0L) {
+            //println("For bus: $busToCheck counter: $counter")
+            step = counter
+            currentBus++
+            if (currentBus == buses.size) break
+            busToCheck = buses[currentBus]
+        }
+    }
 
+    var lcm1 = 1L
+    var lcm2 = 1L
+    var lcm3 = 1L
 
-    var num = 1L
-    var num2 = 1L
-    var num3 = 1L
-    println("unsorted")
+    var gcd1 = 1L
+    var gcd2 = 1L
+    var gcd3 = 1L
+
     buses.forEach { bus ->
-        num = lcm(num, (bus.id + bus.timeStamp))
-        num2 = lcm(num2, (bus.id))
-        num3 = lcm(num3, (bus.id - bus.timeStamp))
-        println()
-        println(num)
-        println(num2)
-        println(num3)
+        lcm1 = lcm(lcm1, bus.id-bus.timeStamp)
+        lcm2 = lcm(lcm2, bus.id)
+        lcm3 = lcm(lcm3, bus.id+bus.timeStamp)
+        gcd1 = gcd( bus.id-bus.timeStamp, gcd1)
+        gcd2 = gcd( bus.id, gcd2)
+        gcd3 = gcd( bus.id+bus.timeStamp, gcd3)
+
+        println("lcm1 = $lcm1")
+        println("lcm2 = $lcm2")
+        println("lcm3 = $lcm3")
+        println("gcd1 = $gcd1")
+        println("gcd2 = $gcd2")
+        println("gcd3 = $gcd3")
+        gcd1 = bus.id
+        gcd2 = bus.id
+        gcd3 = bus.id
+
     }
 
-    num = 1L
-    num2 = 1L
-    num3 = 1L
-    println("sorted")
-    buses.sortedBy { it.id }.forEach { bus ->
-        num = lcm(num, (bus.id + bus.timeStamp))
-        num2 = lcm(num2, (bus.id))
-        num3 = lcm(num3, (bus.id - bus.timeStamp))
-        println()
-        println(num)
-        println(num2)
-        println(num3)
+    if (checkCondition(buses, counter)) {
+        println("Tjoho")
+        return counter
     }
 
-    num = 1L
-    num2 = 1L
-    num3 = 1L
-    println("sorted r")
-    buses.sortedBy { it.id }.reversed().forEach { bus ->
-        num = lcm(num, (bus.id + bus.timeStamp))
-        num2 = lcm(num2, (bus.id))
-        num3 = lcm(num3, (bus.id - bus.timeStamp))
-        println()
-        println(num)
-        println(num2)
-        println(num3)
-    }
-
-
-
-    if (checkCondition(buses, num)) {
-        return num
-    }
-
-    return 0
+    return counter
 }
 
 fun checkCondition(buses: List<Bus>, timeToCheck: Long): Boolean {

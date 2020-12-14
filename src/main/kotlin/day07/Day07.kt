@@ -50,6 +50,7 @@ fun part1(input: String): Int {
                 yourBag -> {
                     newRules.clear()
                     goesToYourBag = true
+                    Pair(from, goesToYourBag)
                 }
                 noOther -> {
                 }
