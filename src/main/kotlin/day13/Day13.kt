@@ -66,30 +66,23 @@ fun part2(input: String): Long {
         multipel *= bus.id
     }
 
-    return result
-}
 
-fun checkCondition(buses: List<Bus>, timeToCheck: Long): Boolean {
-    return buses.map { bus ->
-        if (bus.timeStamp == 0L) {
-            true
-        } else {
-            val t = bus.id - timeToCheck % bus.id
-            t == bus.timeStamp
+    var step = buses[0].id
+    var busToCheck = buses[1]
+    var currentBus = 1
+    var counter = 0L
+    //println("For bus: $busToCheck counter: $counter")
+    while (true) {
+        counter += step
+        if ((counter + busToCheck.timeStamp) % busToCheck.id == 0L) {
+            //println("For bus: $busToCheck counter: $counter")
+            step *= busToCheck.id
+            currentBus++
+            if (currentBus == buses.size) break
+            busToCheck = buses[currentBus]
         }
-    }.count { it } == buses.size
-}
+    }
 
 
-fun lcm(a: Long, b: Long): Long {
-    if (a > b)
-        return (a / gcd(a, b)) * b;
-    else
-        return (b / gcd(a, b)) * a;
-}
-
-fun gcd(a: Long, b: Long): Long {
-    if (b == 0L)
-        return a
-    return gcd(b, a % b);
+    return result
 }
