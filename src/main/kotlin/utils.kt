@@ -12,7 +12,11 @@ operator fun Point3.plus(other: Point3): Point3 {
     )
 }
 
+fun String.splitToInt(vararg delimiters: String) = this.split(delimiters = delimiters).map { it.toInt() }
+fun String.splitToLong(vararg delimiters: String) = this.split(delimiters = delimiters).map { it.toLong() }
+
 object AoCUtils {
+
 
     fun readText(source: String): String =
         File(ClassLoader.getSystemResource(source).file).readText().replace("\r\n", "\n")
