@@ -131,9 +131,10 @@ fun part2(input: String): Long {
     val nameCounter = positionMap.map { (_, v) ->
         val names = v.flatten().distinct().filter { it.isNotBlank() }.map { Pair(it, 0) }.toMap().toMutableMap()
         v.map { a ->
-            a.filter { it.isNotBlank() }.map { b ->
-                names[b] = names[b]!! + 1
-            }
+            a.filter { it.isNotBlank() }
+                .map { b ->
+                    names[b] = names[b]!! + 1
+                }
         }
         names
     }
@@ -148,7 +149,6 @@ fun part2(input: String): Long {
                 .filter { (_, v) -> v == validTickets.size }
             if (candidates.size == 1) {
                 positionsForSeats[index] = candidates.keys.first()
-                return@forEachIndexed
             }
         }
     }
