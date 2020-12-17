@@ -20,7 +20,7 @@ fun main() {
     part1(input) test Pair(232, "part 1 should be 0")
 
     part2(testInput) test Pair(848, "test 2 part 2 should be 0")
-    part2(input) test Pair(0, "part 2 should be 0")
+    part2(input) test Pair(1620, "part 2 should be 0")
 
 }
 
@@ -40,29 +40,21 @@ fun part1(input: String): Long {
         }
     }.flatten().toMap().toMutableMap()
 
-    println("Active cubes: ${cubes.values.filter { it == State.active }.count().toLong()}")
-
     for (turn in 1..6) {
-//        println("Cubes size: " + cubes.size)
-
         // add cubes around....
-        val cubesToAdd = cubes.keys.map { cubesAround(cubes, it) }.flatten().distinct()
+        val cubesToAdd = cubes.keys.map { cubesAround(it) }.flatten().distinct()
         cubesToAdd.forEach { cube ->
             if (!cubes.containsKey(cube)) {
                 cubes[cube] = State.inActive
             }
         }
-// 5
-// 11
-// 21
+
         val cubesToChange = mutableListOf<Pair<Cube, State>>()
         cubes.forEach { (cube, state) ->
-            val cubesAround = cubesAround(cubes, cube)
+            val activesAround =
+                cubesAround(cube).map { cubes.getOrDefault(it, State.inActive) }.count { it == State.active }
 
-//            val inactivesAround = cubesAround.map { cubes.getOrDefault(it, State.inActive) }.count { it == State.inActive }
-            val activesAround = cubesAround.map { cubes.getOrDefault(it, State.inActive) }.count { it == State.active }
-
-            val state = if (state == State.inActive) {
+            val newState = if (state == State.inActive) {
                 if (activesAround == 3) {
                     State.active
                 } else {
@@ -75,21 +67,18 @@ fun part1(input: String): Long {
                     State.inActive
                 }
             }
-            cubesToChange.add(Pair(cube, state))
+            cubesToChange.add(Pair(cube, newState))
         }
-
         cubesToChange.forEach { toChange ->
             cubes[toChange.first] = toChange.second
         }
-        println("Active cubes: ${cubes.values.filter { it == State.active }.count().toLong()}")
-
     }
 
 
     return cubes.values.filter { it == State.active }.count().toLong()
 }
 
-fun cubesAround(cubes: MutableMap<Cube, State>, cube: Cube): List<Cube> {
+fun cubesAround(cube: Cube): List<Cube> {
     val returnList = mutableListOf<Cube>()
 
     for (x in -1..1) {
@@ -103,9 +92,8 @@ fun cubesAround(cubes: MutableMap<Cube, State>, cube: Cube): List<Cube> {
     return returnList.filter { it != cube }.distinct()
 }
 
-fun cubesAround4(cubes: MutableMap<Cube4, State>, cube: Cube4): List<Cube4> {
+fun cubesAround4(cube: Cube4): List<Cube4> {
     val returnList = mutableListOf<Cube4>()
-
     for (x in -1..1) {
         for (y in -1..1) {
             for (z in -1..1) {
@@ -115,7 +103,6 @@ fun cubesAround4(cubes: MutableMap<Cube4, State>, cube: Cube4): List<Cube4> {
             }
         }
     }
-
     return returnList.filter { it != cube }.distinct()
 }
 
@@ -131,13 +118,9 @@ fun part2(input: String): Long {
         }
     }.flatten().toMap().toMutableMap()
 
-    println("Active cubes: ${cubes.values.filter { it == State.active }.count().toLong()}")
-
     for (turn in 1..6) {
-//        println("Cubes size: " + cubes.size)
-
         // add cubes around....
-        val cubesToAdd = cubes.keys.map { cubesAround4(cubes, it) }.flatten().distinct()
+        val cubesToAdd = cubes.keys.map { cubesAround4(it) }.flatten().distinct()
         cubesToAdd.forEach { cube ->
             if (!cubes.containsKey(cube)) {
                 cubes[cube] = State.inActive
@@ -146,12 +129,10 @@ fun part2(input: String): Long {
 
         val cubesToChange = mutableListOf<Pair<Cube4, State>>()
         cubes.forEach { (cube, state) ->
-            val cubesAround = cubesAround4(cubes, cube)
+            val activesAround =
+                cubesAround4(cube).map { cubes.getOrDefault(it, State.inActive) }.count { it == State.active }
 
-//            val inactivesAround = cubesAround.map { cubes.getOrDefault(it, State.inActive) }.count { it == State.inActive }
-            val activesAround = cubesAround.map { cubes.getOrDefault(it, State.inActive) }.count { it == State.active }
-
-            val state = if (state == State.inActive) {
+            val newState = if (state == State.inActive) {
                 if (activesAround == 3) {
                     State.active
                 } else {
@@ -164,16 +145,13 @@ fun part2(input: String): Long {
                     State.inActive
                 }
             }
-            cubesToChange.add(Pair(cube, state))
+            cubesToChange.add(Pair(cube, newState))
         }
 
         cubesToChange.forEach { toChange ->
             cubes[toChange.first] = toChange.second
         }
-        println("Active cubes: ${cubes.values.filter { it == State.active }.count().toLong()}")
-
     }
-
 
     return cubes.values.filter { it == State.active }.count().toLong()
 }
