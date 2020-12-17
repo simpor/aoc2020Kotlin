@@ -1,11 +1,11 @@
-package day19
+package day22
 
 import AoCUtils
 import solveWithTiming
 
 val testInput = ""
 
-val input = AoCUtils.readText("19.txt")
+val input = AoCUtils.readText("22.txt")
 
 fun main() {
     solveWithTiming({ part1(testInput) }, 0, "test 1 part 1")

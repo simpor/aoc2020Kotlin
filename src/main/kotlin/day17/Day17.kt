@@ -1,6 +1,5 @@
 package day17
 
-import AoCUtils.test
 import solveWithTiming
 
 val testInput = ".#.\n" +
@@ -99,7 +98,14 @@ fun cubesAround(coordinate: Coordinate, dimensions: Int): List<Coordinate> {
                         returnList.add(Coordinate(x = coordinate.x + x, y = coordinate.y + y, z = coordinate.z + z))
                     } else if (dimensions == 4) {
                         for (w in -1..1) {
-                            returnList.add(Coordinate(x = coordinate.x + x, y = coordinate.y + y, z = coordinate.z + z, w = coordinate.w + w))
+                            returnList.add(
+                                Coordinate(
+                                    x = coordinate.x + x,
+                                    y = coordinate.y + y,
+                                    z = coordinate.z + z,
+                                    w = coordinate.w + w
+                                )
+                            )
                         }
                     }
                 }

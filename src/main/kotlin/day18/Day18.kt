@@ -1,7 +1,6 @@
 package day18
 
 import AoCUtils
-import AoCUtils.test
 import solveWithTiming
 
 val testInput = ""
