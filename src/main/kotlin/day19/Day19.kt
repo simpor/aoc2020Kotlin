@@ -1,7 +1,6 @@
-package day18
+package day19
 
 import AoCUtils
-import AoCUtils.test
 import solveWithTiming
 
 val testInput = ""
@@ -14,7 +13,6 @@ fun main() {
 
     solveWithTiming({ part2(testInput) }, 0, "test 1 part 2")
     solveWithTiming({ part2(input) }, 0, "part 2")
-
 }
 
 fun part1(input: String): Long {
