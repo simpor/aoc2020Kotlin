@@ -17,6 +17,9 @@ fun String.splitToLong(vararg delimiters: String) = this.split(delimiters = deli
 
 object AoCUtils {
 
+    object Regexp {
+        val isNumber = "-?\\d+(\\.\\d+)?".toRegex()
+    }
 
     fun readText(source: String): String =
         File(ClassLoader.getSystemResource(source).file).readText().replace("\r\n", "\n")
