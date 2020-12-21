@@ -39,48 +39,25 @@ fun part1(input: String): Long {
 
     val wordBook = mutableMapOf<String, String>()
     val almostMatch = mutableMapOf<String, List<String>>()
+    val allergents = menu.map { it.third }.flatten().distinct()
 
-    val emptyList = mutableListOf<List<String>>()
-    while (allergensToIngredients.isNotEmpty()) {
-        val empty = menu2.filter { it.third.isEmpty() }
-        emptyList.addAll(empty.map { it.second.toList() })
-        menu2.forEach { t -> empty.forEach{y -> t.second.removeAll(y.second)} }
+    val allergentsToMenu =
+        allergents.map { allergent -> Pair(allergent, menu.filter { it.third.contains(allergent) }.map { it.second }) }
 
-
-        val a = menu2.filter { it.third.size == 1 }
-        if (a.isEmpty()) {
-            break
-        }
-        a.forEach { b ->
-            val allergen = b.third.first()
-            if (b.second.size == 1) {
-                val ingredient = b.second.first()
-                println("Found: $allergen = $ingredient")
-                wordBook[allergen] = ingredient
-                menu2.forEach { x ->
-                    x.second.remove(ingredient)
-                    x.third.remove(allergen)
-                }
-            }
-            val menuLines = menu2.filter { it.third.contains(allergen) }.filter { it != b }
-            var intersecten = b.second
-            menuLines.map { line ->
-                val intersect = intersecten.intersect(line.second)
-                if (intersect.size == 1) {
-                    val ingredient = intersect.first()
-                    wordBook[allergen] = ingredient
-                    println("Found: $allergen = $ingredient")
-                    menu2.forEach { x ->
-                        x.second.remove(ingredient)
-                        x.third.remove(allergen)
-                    }
-                }
-                intersecten = intersect.toMutableSet()
-                almostMatch[allergen] = intersecten.toList()
-            }
-        }
-
+    val intersected = allergentsToMenu.map { a ->
+        Pair(a.first, a.second.fold(setOf<String>()) { acc, set ->
+            if (acc.isEmpty()) set
+            else acc.intersect(set)
+        })
     }
+
+    while (wordBook.size < intersected.size) {
+        intersected
+            .map { i -> Pair(i.first, i.second.filter { !wordBook.values.contains(it) }) }
+            .filter { it.second.size == 1 }
+            .forEach { a -> wordBook[a.first] = a.second.first() }
+    }
+
 
     allIngredients.forEach { line ->
         line.removeAll(wordBook.values)
