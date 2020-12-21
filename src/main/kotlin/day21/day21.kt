@@ -19,16 +19,7 @@ fun main() {
 }
 
 fun part1(input: String): Long {
-
-    val menu = input.lines().mapIndexed { index, line ->
-        val split = line.replace("(", "").replace(")", "").split("contains ")
-        val ingredients =
-            split[0].split(" ").let { it.filter { t -> t.isNotBlank() }.map { z -> z.trim() } }.toMutableSet()
-        val allergen =
-            split[1].split(", ").let { it.filter { t -> t.isNotBlank() }.map { z -> z.trim() } }.toMutableSet()
-        Triple(index, ingredients, allergen)
-    }
-
+    val menu = parseInput(input)
     val wordBook = getWordBook(menu)
 
     val allIngredients = menu.map { it.second.toMutableList() }
@@ -41,19 +32,35 @@ fun part1(input: String): Long {
     return allIngredients.map { it.size }.sum().toLong()
 }
 
+fun part2(input: String): String {
+    val menu = parseInput(input)
+    val wordBook = getWordBook(menu)
+
+    return wordBook.keys.sorted().map { wordBook[it] }.joinToString(separator = ",")
+
+}
+
+private fun parseInput(input: String): List<Triple<Int, MutableSet<String>, MutableSet<String>>> {
+    return input.lines().mapIndexed { index, line ->
+        val split = line.replace("(", "").replace(")", "").split("contains ")
+        val ingredients =
+            split[0].split(" ").let { it.filter { t -> t.isNotBlank() }.map { z -> z.trim() } }.toMutableSet()
+        val allergen =
+            split[1].split(", ").let { it.filter { t -> t.isNotBlank() }.map { z -> z.trim() } }.toMutableSet()
+        Triple(index, ingredients, allergen)
+    }
+}
+
 private fun getWordBook(menu: List<Triple<Int, MutableSet<String>, MutableSet<String>>>): MutableMap<String, String> {
     val wordBook = mutableMapOf<String, String>()
-    val allergents = menu.map { it.third }.flatten().distinct()
-
-    val allergentsToMenu =
-        allergents.map { allergent -> Pair(allergent, menu.filter { it.third.contains(allergent) }.map { it.second }) }
-
-    val intersected = allergentsToMenu.map { a ->
-        Pair(a.first, a.second.fold(setOf<String>()) { acc, set ->
-            if (acc.isEmpty()) set
-            else acc.intersect(set)
-        })
-    }
+    val intersected = menu.asSequence().map { it.third }.flatten().distinct()
+        .map { a -> Pair(a, menu.filter { it.third.contains(a) }.map { it.second }) }
+        .map { a ->
+            Pair(a.first, a.second.fold(setOf<String>()) { acc, set ->
+                if (acc.isEmpty()) set
+                else acc.intersect(set)
+            })
+        }.toList()
 
     while (wordBook.size < intersected.size) {
         intersected
@@ -62,21 +69,4 @@ private fun getWordBook(menu: List<Triple<Int, MutableSet<String>, MutableSet<St
             .forEach { a -> wordBook[a.first] = a.second.first() }
     }
     return wordBook
-}
-
-fun part2(input: String): String {
-
-    val menu = input.lines().mapIndexed { index, line ->
-        val split = line.replace("(", "").replace(")", "").split("contains ")
-        val ingredients =
-            split[0].split(" ").let { it.filter { t -> t.isNotBlank() }.map { z -> z.trim() } }.toMutableSet()
-        val allergen =
-            split[1].split(", ").let { it.filter { t -> t.isNotBlank() }.map { z -> z.trim() } }.toMutableSet()
-        Triple(index, ingredients, allergen)
-    }
-
-    val wordBook = getWordBook(menu)
-
-    return wordBook.keys.sorted().map { wordBook[it] }.joinToString(separator = ",")
-
 }
