@@ -11,11 +11,11 @@ val testInput = "mxmxvkd kfcds sqjhc nhms (contains dairy, fish)\n" +
 val input = AoCUtils.readText("21.txt")
 
 fun main() {
-    //solveWithTiming({ part1(testInput) }, 5, "test 1 part 1")
-    solveWithTiming({ part1(input) }, 0, "part 1")
+    solveWithTiming({ part1(testInput) }, 5, "test 1 part 1")
+    solveWithTiming({ part1(input) }, 2324, "part 1")
 
-    solveWithTiming({ part2(testInput) }, 0, "test 1 part 2")
-    solveWithTiming({ part2(input) }, 0, "part 2")
+    solveWithTiming({ part2(testInput) }, "mxmxvkd,sqjhc,fvjkl", "test 1 part 2")
+    solveWithTiming({ part2(input) }, "bxjvzk,hqgqj,sp,spl,hsksz,qzzzf,fmpgn,tpnnkc", "part 2")
 }
 
 fun part1(input: String): Long {
@@ -29,16 +29,20 @@ fun part1(input: String): Long {
         Triple(index, ingredients, allergen)
     }
 
-    val allergensToIngredients = menu.map { p ->
-        p.third.map { Triple(p.first, it, p.second) }
-    }.flatten().toMutableList()
+    val wordBook = getWordBook(menu)
 
     val allIngredients = menu.map { it.second.toMutableList() }
 
-    val menu2 = menu.toMutableList()
+    allIngredients.forEach { line ->
+        line.removeAll(wordBook.values)
+    }
 
+
+    return allIngredients.map { it.size }.sum().toLong()
+}
+
+private fun getWordBook(menu: List<Triple<Int, MutableSet<String>, MutableSet<String>>>): MutableMap<String, String> {
     val wordBook = mutableMapOf<String, String>()
-    val almostMatch = mutableMapOf<String, List<String>>()
     val allergents = menu.map { it.third }.flatten().distinct()
 
     val allergentsToMenu =
@@ -57,16 +61,22 @@ fun part1(input: String): Long {
             .filter { it.second.size == 1 }
             .forEach { a -> wordBook[a.first] = a.second.first() }
     }
-
-
-    allIngredients.forEach { line ->
-        line.removeAll(wordBook.values)
-    }
-
-
-    return allIngredients.map { it.size }.sum().toLong()
+    return wordBook
 }
 
-fun part2(input: String): Long {
-    return 0L
+fun part2(input: String): String {
+
+    val menu = input.lines().mapIndexed { index, line ->
+        val split = line.replace("(", "").replace(")", "").split("contains ")
+        val ingredients =
+            split[0].split(" ").let { it.filter { t -> t.isNotBlank() }.map { z -> z.trim() } }.toMutableSet()
+        val allergen =
+            split[1].split(", ").let { it.filter { t -> t.isNotBlank() }.map { z -> z.trim() } }.toMutableSet()
+        Triple(index, ingredients, allergen)
+    }
+
+    val wordBook = getWordBook(menu)
+
+    return wordBook.keys.sorted().map { wordBook[it] }.joinToString(separator = ",")
+
 }
