@@ -37,6 +37,7 @@ fun main() {
     }, 291, "test 1 part 2")
     solveWithTiming({ part2(testInput) }, 291, "test 1 part 2")
     solveWithTiming({ part2(input) }, 0, "part 2") // to low: 8598, 10018
+    // bara fel: 30293
 }
 
 val debug = false
@@ -129,13 +130,13 @@ private fun recGame(
         }
 
 //        if (p1History.contains(p1DeckString) && p2History.contains(p2DeckString)) {
-        if (counter % 1000 == 0L || historyInternal.contains(key) || historyRec.contains(key)) {
+        if (historyInternal.contains(key) || historyRec.contains(key)) {
             historyRec.add(key)
             player2.clear()
             println("[${if(start) "main" else "rec"}, $counter] p1 win!, history: " + player1.reversed().foldIndexed(0L, { index, acc, next ->
                 acc + (index + 1) * next
             }))
-            historyWin = false
+            historyWin = true
             break
         }
         historyInternal.add(key)
@@ -166,9 +167,11 @@ private fun recGame(
                 }
             } else {
                 recGame(p1Copy, p2Copy, 0, false)
-                if (historyWin) {
+                if (historyWin && !start) {
                     p2Copy.clear()
                     if (!start) break
+                } else if (historyWin && start) {
+                    historyWin = false
                 }
                 if (p1Copy.isNotEmpty()) {
 //                println("[$counter] p1 win!-1, p1: $p1, p2: $p2")
