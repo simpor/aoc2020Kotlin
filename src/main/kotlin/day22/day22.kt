@@ -94,7 +94,7 @@ fun part2(input: String): Long {
     historyRec.clear()
     recGame(player1, player2, 0, true)
 
-    if (player1.isNotEmpty() || historyWin)
+    if (player1.isNotEmpty())
         return player1.reversed().foldIndexed(0L, { index, acc, next ->
             acc + (index + 1) * next
         })
@@ -126,16 +126,19 @@ private fun recGame(
         val p2DeckString = player2.joinToString(separator = "-")
         val key = Pair(p1DeckString, p2DeckString)
         if (counter % 1000 == 0L) {
-            println("[${if(start) "main" else "rec"}, $counter] Counter: ${counter}")
+            println("[${if (start) "main" else "rec"}, $counter] Counter: ${counter}")
         }
 
 //        if (p1History.contains(p1DeckString) && p2History.contains(p2DeckString)) {
         if (historyInternal.contains(key) || historyRec.contains(key)) {
             historyRec.add(key)
             player2.clear()
-            println("[${if(start) "main" else "rec"}, $counter] p1 win!, history: " + player1.reversed().foldIndexed(0L, { index, acc, next ->
-                acc + (index + 1) * next
-            }))
+            println(
+                "[${if (start) "main" else "rec"}, $counter] p1 win!, history: " + player1.reversed()
+                    .foldIndexed(0L, { index, acc, next ->
+                        acc + (index + 1) * next
+                    })
+            )
             historyWin = true
             break
         }
@@ -157,7 +160,7 @@ private fun recGame(
             val key2 = Pair(p1CopyDeckString, p2CopyDeckString)
             if (memory.containsKey(key2)
             ) {
-                println("[${if(start) "main" else "rec"}, Memoryhit: p1: $p2DeckString, p2: $p2DeckString")
+                println("[${if (start) "main" else "rec"}, Memoryhit: p1: $p2DeckString, p2: $p2DeckString")
                 if (memory[key2]!!) {
                     player1.add(p1)
                     player1.add(p2)
@@ -176,13 +179,13 @@ private fun recGame(
                 if (p1Copy.isNotEmpty()) {
 //                println("[$counter] p1 win!-1, p1: $p1, p2: $p2")
 //                    if (player1.size + player2.size > 40)
-                        memory[key2] = true
+                    memory[key2] = true
                     player1.add(p1)
                     player1.add(p2)
                 } else {
 //                println("[$counter] p2 win!-1, p1: $p1, p2: $p2")
 //                    if (player1.size + player2.size > 40)
-                        memory[key2] = false
+                    memory[key2] = false
                     player2.add(p2)
                     player2.add(p1)
                 }
@@ -190,13 +193,13 @@ private fun recGame(
         } else if (p1 > p2) {
 //            println("[$counter] p1 win!-2, p1: $p1, p2: $p2")
 //            if (player1.size + player2.size > 40)
-               // memory[key] = true
+            // memory[key] = true
             player1.add(p1)
             player1.add(p2)
         } else {
 //            println("[$counter] p2 win!-2, p1: $p1, p2: $p2")
 //            if (player1.size + player2.size > 40)
-               // memory[key] = false
+            // memory[key] = false
             player2.add(p2)
             player2.add(p1)
         }
