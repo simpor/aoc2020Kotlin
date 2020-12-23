@@ -16,7 +16,37 @@ fun main() {
     solveWithTiming({ part2(input) }, 0, "part 2")
 }
 
-data class Cup(val label: Int, var inGame: Boolean = true, var next: Cup? = null, var prev: Cup? = null)
+data class Cup(val label: Int, var inGame: Boolean = true, var next: Cup? = null, var prev: Cup? = null) {
+    fun addNext(cup: Cup) {
+        next = cup
+        cup.prev = this
+    }
+
+    fun cutPrev(): Cup {
+        val prevCup = prev
+        prevCup!!.next = null
+        prev = null
+        return prevCup
+    }
+
+    fun cutNext(): Cup {
+        val nextCup = next!!
+        next = null
+        nextCup.prev = null
+        return nextCup
+    }
+
+    fun addPrev(cup: Cup) {
+        prev = cup
+        cup.next = this
+    }
+
+    override fun toString(): String {
+        return "Cup(label=$label, inGame=$inGame, next=${next?.label}, prev=${prev?.label})"
+    }
+
+
+}
 
 class Game(input: String) {
     lateinit var currentCup: Cup
@@ -30,13 +60,10 @@ class Game(input: String) {
             val cup = cupMap[label]!!
             if (index == 0) currentCup = cup
             else if (index == input.length - 1) {
-                prevCup!!.next = cup
-                cup.next = currentCup
-                cup.prev = prevCup
-                currentCup.prev = cup
+                cup.addPrev(prevCup!!)
+                cup.addNext(currentCup)
             } else {
-                cup.prev = prevCup
-                prevCup!!.next = cup
+                cup.addPrev(prevCup!!)
             }
             prevCup = cup
         }
@@ -51,29 +78,33 @@ class Game(input: String) {
             cup.inGame = false
             list.add(cup)
         }
-        val start = list[0].prev!!
-        val end = list[2].next!!
-        list[0].prev = null
-        list[2].next = null
-        start.next = end
-        end.prev = start
+        val beforeCut = list[0].cutPrev()
+        val afterCut = list[2].cutNext()
+        beforeCut.addNext(afterCut)
+//        println(printNextFrom(currentCup))
+//        println(printPrevFrom(currentCup))
 
         // select destination
-        val destinationCup = (1..9).dropWhile { i ->
-            val num = if (currentCup.label - i < 1) 9 - currentCup.label - i else currentCup.label - i
-            !cupMap[num]!!.inGame
-        }.take(1)
-            .map { cupMap[it]!! }.first()
+        var destinationCup = currentCup
+        var counter = 1
+        while (true) {
+            var num = currentCup.label - counter
+            if (num < 1) {
+                num = 9 + num
+            }
+            val cup = cupMap[num]!!
+            if (cup.inGame) {
+                destinationCup = cup
+                break
+            }
+            counter++
+        }
 
         // inserts items in circle again
         val next = destinationCup.next!!
-        val first = list[0]
-        val last = list[2]
-        first.prev = destinationCup
-        destinationCup.next = first
-        last.next = next
-        next.prev = last
-
+        destinationCup.addNext(list[0])
+        next.addPrev(list[2])
+        list.forEach { it.inGame = true }
         currentCup = currentCup.next!!
 
     }
@@ -82,10 +113,34 @@ class Game(input: String) {
         var cup = cupMap[1]!!
 
         var result = ""
+        cup = cup.next!!
         while (cup.next!!.label != 1) {
             result += cup.label
+            cup = cup.next!!
         }
-        return result
+        return result + cup.label
+    }
+
+    fun printNextFrom(startWith: Cup): String {
+        var cup = startWith
+
+        var result = ""
+        while (cup.next!!.label != startWith.label) {
+            result += cup.label
+            cup = cup.next!!
+        }
+        return result + cup.label
+    }
+
+    fun printPrevFrom(startWith: Cup): String {
+        var cup = startWith
+
+        var result = ""
+        while (cup.prev!!.label != startWith.label) {
+            result += cup.label
+            cup = cup.prev!!
+        }
+        return result + cup.label
     }
 }
 
@@ -94,6 +149,10 @@ fun part1(input: String, moves: Int = 100): String {
     val game = Game(input)
 
     repeat(moves) {
+//        println("Result: " + game.createResult())
+//        println("Next: " + game.printNextFrom(game.currentCup))
+//        println("Prev: " + game.printPrevFrom(game.currentCup))
+//        println()
         game.playOneRound()
     }
 
