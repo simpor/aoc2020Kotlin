@@ -2,6 +2,7 @@ package day23
 
 import AoCUtils
 import solveWithTiming
+import java.lang.Exception
 
 val testInput = ""
 
@@ -10,10 +11,10 @@ val input = AoCUtils.readText("23.txt")
 fun main() {
     solveWithTiming({ part1("389125467", moves = 10) }, "92658374", "test 1 part 1")
     solveWithTiming({ part1("389125467") }, "67384529", "test 2 part 1")
-    solveWithTiming({ part1("362981754") }, "0", "part 1")
+    solveWithTiming({ part1("362981754") }, "24798635", "part 1")
 
-    solveWithTiming({ part2(testInput) }, 0, "test 1 part 2")
-    solveWithTiming({ part2(input) }, 0, "part 2")
+    solveWithTiming({ part2("389125467") }, 149245887792, "test 1 part 2")
+    solveWithTiming({ part2("362981754") }, 0, "part 2")
 }
 
 data class Cup(val label: Int, var inGame: Boolean = true, var next: Cup? = null, var prev: Cup? = null) {
@@ -48,10 +49,9 @@ data class Cup(val label: Int, var inGame: Boolean = true, var next: Cup? = null
 
 }
 
-class Game(input: String) {
+class Game(input: List<Int>) {
     lateinit var currentCup: Cup
-    val cupMap = input.map { it.toString().toInt() }
-        .map { Pair(it, Cup(it)) }.toMap()
+    val cupMap = input.map { Pair(it, Cup(it)) }.toMap()
 
     init {
         var prevCup: Cup? = null
@@ -59,7 +59,7 @@ class Game(input: String) {
             val label = i.toString().toInt()
             val cup = cupMap[label]!!
             if (index == 0) currentCup = cup
-            else if (index == input.length - 1) {
+            else if (index == input.size - 1) {
                 cup.addPrev(prevCup!!)
                 cup.addNext(currentCup)
             } else {
@@ -90,9 +90,9 @@ class Game(input: String) {
         while (true) {
             var num = currentCup.label - counter
             if (num < 1) {
-                num = 9 + num
+                num = cupMap.size + num
             }
-            val cup = cupMap[num]!!
+            val cup = cupMap[num] ?: throw Exception("Wrong num: $num")
             if (cup.inGame) {
                 destinationCup = cup
                 break
@@ -146,7 +146,7 @@ class Game(input: String) {
 
 fun part1(input: String, moves: Int = 100): String {
 
-    val game = Game(input)
+    val game = Game(input.map { it.toString().toInt() })
 
     repeat(moves) {
 //        println("Result: " + game.createResult())
@@ -160,5 +160,21 @@ fun part1(input: String, moves: Int = 100): String {
 }
 
 fun part2(input: String): Long {
-    return 0L
+
+    val list = input.map { it.toString().toInt() }.toMutableList()
+    for (i in 10..1000000) {
+        list.add(i)
+    }
+    val game = Game(list)
+
+    repeat(10000000) {
+//        println("Result: " + game.createResult())
+//        println("Next: " + game.printNextFrom(game.currentCup))
+//        println("Prev: " + game.printPrevFrom(game.currentCup))
+//        println()
+        game.playOneRound()
+    }
+    val cup = game.cupMap[1]!!
+    return cup.next!!.next!!.label.toLong() * cup.next!!.label.toLong()
+
 }
