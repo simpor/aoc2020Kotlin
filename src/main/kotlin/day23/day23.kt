@@ -14,7 +14,7 @@ fun main() {
     solveWithTiming({ part1("362981754") }, "24798635", "part 1")
 
     solveWithTiming({ part2("389125467") }, 149245887792, "test 1 part 2")
-    solveWithTiming({ part2("362981754") }, 0, "part 2")
+    solveWithTiming({ part2("362981754") }, 12757828710, "part 2")
 }
 
 data class Cup(val label: Int, var inGame: Boolean = true, var next: Cup? = null, var prev: Cup? = null) {
@@ -81,8 +81,6 @@ class Game(input: List<Int>) {
         val beforeCut = list[0].cutPrev()
         val afterCut = list[2].cutNext()
         beforeCut.addNext(afterCut)
-//        println(printNextFrom(currentCup))
-//        println(printPrevFrom(currentCup))
 
         // select destination
         var destinationCup = currentCup
@@ -149,10 +147,6 @@ fun part1(input: String, moves: Int = 100): String {
     val game = Game(input.map { it.toString().toInt() })
 
     repeat(moves) {
-//        println("Result: " + game.createResult())
-//        println("Next: " + game.printNextFrom(game.currentCup))
-//        println("Prev: " + game.printPrevFrom(game.currentCup))
-//        println()
         game.playOneRound()
     }
 
@@ -168,10 +162,6 @@ fun part2(input: String): Long {
     val game = Game(list)
 
     repeat(10000000) {
-//        println("Result: " + game.createResult())
-//        println("Next: " + game.printNextFrom(game.currentCup))
-//        println("Prev: " + game.printPrevFrom(game.currentCup))
-//        println()
         game.playOneRound()
     }
     val cup = game.cupMap[1]!!
