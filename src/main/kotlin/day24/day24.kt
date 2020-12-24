@@ -34,7 +34,7 @@ fun main() {
     solveWithTiming({ part1(input) }, 332, "part 1")
 
     solveWithTiming({ part2(testInput) }, 2208, "test 1 part 2")
-    solveWithTiming({ part2(input) }, 0, "part 2")
+    solveWithTiming({ part2(input) }, 3900, "part 2")
 }
 
 enum class Direction { e, se, sw, w, nw, ne }
@@ -51,20 +51,20 @@ val dirMovement = mapOf(
 
 fun part1(input: String): Long {
     val hexMap = createHexMap(input)
-
     return (hexMap.values.count { it == black }).toLong()
 }
 
 fun part2(input: String): Long {
     var hexMap = createHexMap(input).toMap()
-    println((hexMap.values.count { it == black }).toLong())
     repeat(100) {
         // expand map
         var newMap = hexMap
             .map { tile ->
-                dirMovement
-                    .map { it.value + tile.key }
-                    .map { Pair(it, hexMap.getOrDefault(it, white)) }
+                if (tile.value == black)
+                    dirMovement
+                        .map { it.value + tile.key }
+                        .map { Pair(it, hexMap.getOrDefault(it, white)) }
+                else listOf(Pair(tile.key, tile.value))
             }.flatten()
             .distinct()
             .toMap()
@@ -80,14 +80,13 @@ fun part2(input: String): Long {
             }
         }.toMap()
         hexMap = newMap
-        println("$it: " + (hexMap.values.count { it == black }).toLong())
     }
 
     return (hexMap.values.count { it == black }).toLong()
 }
 
 
-private fun createHexMap(input: String): MutableMap<Point, Tile> {
+private fun createHexMap(input: String): Map<Point, Tile> {
     val list = input.lines().map {
         var str = it
         val dirs = mutableListOf<Direction>()
@@ -129,13 +128,9 @@ private fun createHexMap(input: String): MutableMap<Point, Tile> {
     list.forEach { round ->
         val newPoint = round
             .map { dirMovement[it]!! }
-            .fold(Point(0, 0)) { acc, dir ->
-                val newPoint = acc + dir
-                hexMap.putIfAbsent(newPoint, white)
-                newPoint
-            }
+            .fold(Point(0, 0)) { acc, dir -> acc + dir }
         val tile = hexMap.getOrDefault(newPoint, white)
         hexMap[newPoint] = if (tile == white) black else white
     }
-    return hexMap
+    return hexMap.toMap()
 }
