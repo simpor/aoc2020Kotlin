@@ -2,6 +2,8 @@ package day24
 
 import AoCUtils
 import Point
+import day24.Tile.black
+import day24.Tile.white
 import solveWithTiming
 
 val testInput = "sesenwnenenewseeswwswswwnenewsewsw\n" +
@@ -50,27 +52,38 @@ val dirMovement = mapOf(
 fun part1(input: String): Long {
     val hexMap = createHexMap(input)
 
-    return (hexMap.values.count { it == Tile.black }).toLong()
+    return (hexMap.values.count { it == black }).toLong()
 }
 
 fun part2(input: String): Long {
     var hexMap = createHexMap(input).toMap()
+    println((hexMap.values.count { it == black }).toLong())
     repeat(100) {
-        val newMap = hexMap.map { tile ->
-            val around = dirMovement.map {tile.key + it.value }.map { hexMap.getOrDefault(it, Tile.white) }.count { it == Tile.black }
+        // expand map
+        var newMap = hexMap
+            .map { tile ->
+                dirMovement
+                    .map { it.value + tile.key }
+                    .map { Pair(it, hexMap.getOrDefault(it, white)) }
+            }.flatten()
+            .distinct()
+            .toMap()
+
+        // check flip rules
+        newMap = newMap.map { tile ->
+            val around = dirMovement.map { tile.key + it.value }
+                .map { hexMap.getOrDefault(it, white) }
+                .count { it == black }
             when (tile.value) {
-                Tile.white -> {
-                    Pair(tile.key, if (around == 2) Tile.black else Tile.white)
-                }
-                Tile.black -> {
-                    Pair(tile.key, if (around == 0 || around >= 2) Tile.white else Tile.black)
-                }
+                white -> Pair(tile.key, if (around == 2) black else white)
+                black -> Pair(tile.key, if (around == 0 || around > 2) white else black)
             }
         }.toMap()
         hexMap = newMap
+        println("$it: " + (hexMap.values.count { it == black }).toLong())
     }
 
-    return (hexMap.values.count { it == Tile.black }).toLong()
+    return (hexMap.values.count { it == black }).toLong()
 }
 
 
@@ -116,9 +129,13 @@ private fun createHexMap(input: String): MutableMap<Point, Tile> {
     list.forEach { round ->
         val newPoint = round
             .map { dirMovement[it]!! }
-            .fold(Point(0, 0)) { acc, dir -> acc + dir }
-        val tile = hexMap.getOrDefault(newPoint, Tile.white)
-        hexMap[newPoint] = if (tile == Tile.white) Tile.black else Tile.white
+            .fold(Point(0, 0)) { acc, dir ->
+                val newPoint = acc + dir
+                hexMap.putIfAbsent(newPoint, white)
+                newPoint
+            }
+        val tile = hexMap.getOrDefault(newPoint, white)
+        hexMap[newPoint] = if (tile == white) black else white
     }
     return hexMap
 }
