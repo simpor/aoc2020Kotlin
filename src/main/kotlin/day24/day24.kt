@@ -54,21 +54,23 @@ fun part1(input: String): Long {
 }
 
 fun part2(input: String): Long {
-    val hexMap = createHexMap(input)
+    var hexMap = createHexMap(input).toMap()
     repeat(100) {
-        hexMap.map { tile ->
+        val newMap = hexMap.map { tile ->
+            val around = dirMovement.map {tile.key + it.value }.map { hexMap.getOrDefault(it, Tile.white) }.count { it == Tile.black }
             when (tile.value) {
                 Tile.white -> {
-                    TODO()
+                    Pair(tile.key, if (around == 2) Tile.black else Tile.white)
                 }
                 Tile.black -> {
-                    dirMovement.map {  }
+                    Pair(tile.key, if (around == 0 || around >= 2) Tile.white else Tile.black)
                 }
             }
-        }
+        }.toMap()
+        hexMap = newMap
     }
 
-    return 0L
+    return (hexMap.values.count { it == Tile.black }).toLong()
 }
 
 
@@ -114,7 +116,7 @@ private fun createHexMap(input: String): MutableMap<Point, Tile> {
     list.forEach { round ->
         val newPoint = round
             .map { dirMovement[it]!! }
-            .fold(Point(0, 0)) { acc, dir -> Point(acc.x + dir.x, acc.y + dir.y) }
+            .fold(Point(0, 0)) { acc, dir -> acc + dir }
         val tile = hexMap.getOrDefault(newPoint, Tile.white)
         hexMap[newPoint] = if (tile == Tile.white) Tile.black else Tile.white
     }
