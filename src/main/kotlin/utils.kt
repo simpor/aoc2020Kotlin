@@ -1,16 +1,25 @@
 import com.github.mm.coloredconsole.colored
 import java.io.File
 
-data class Point(val x: Int, val y: Int)
-data class Point3(var x: Int, var y: Int, var z: Int)
-
-operator fun Point3.plus(other: Point3): Point3 {
-    return Point3(
-        this.x + other.x,
-        this.y + other.y,
-        this.z + other.z
-    )
+data class Point(val x: Int, val y: Int) {
+    operator fun plus(other: Point): Point {
+        return Point(
+            this.x + other.x,
+            this.y + other.y
+        )
+    }
 }
+
+data class Point3(var x: Int, var y: Int, var z: Int) {
+    operator fun plus(other: Point3): Point3 {
+        return Point3(
+            this.x + other.x,
+            this.y + other.y,
+            this.z + other.z
+        )
+    }
+}
+
 
 fun String.splitToInt(vararg delimiters: String) = this.split(delimiters = delimiters).map { it.toInt() }
 fun String.splitToLong(vararg delimiters: String) = this.split(delimiters = delimiters).map { it.toLong() }
