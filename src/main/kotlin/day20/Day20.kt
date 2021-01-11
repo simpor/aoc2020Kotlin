@@ -18,35 +18,104 @@ fun main() {
 
 enum class Transformation { none, rotate, flip, flipRotate, rotateFlip }
 data class Tile(val id: Long, val input: Map<Point, Char>) {
-    val versions: List<List<Short>>
+    val tiles: List<Map<Point, Char>>
 
     init {
-        versions = listOf(
-            generateSideNums(false, 0),
-            generateSideNums(false, 1),
-            generateSideNums(false, 2),
-            generateSideNums(false, 3),
-            generateSideNums(true, 0),
-            generateSideNums(true, 1),
-            generateSideNums(true, 2),
-            generateSideNums(true, 3),
+        val flipped = input.flip()
+        tiles = listOf(
+            input,
+            rotate(input, 1),
+            rotate(input, 2),
+            rotate(input, 3),
+            flipped,
+            rotate(flipped, 1),
+            rotate(flipped, 2),
+            rotate(flipped, 3),
         )
     }
 
-    private fun generateSideNums(flip: Boolean, rotate: Int): List<Short> {
+    private fun rotate(tile: Map<Point, Char>, rotations: Int): Map<Point, Char> {
+        val map = mutableMapOf<Point, Char>()
+        repeat(10) { x ->
+            repeat(10) { y ->
+                try {
+                    val c = tile[Point(x, y)]!!
+                    val newX = 9 - y
+                    val newY = x
+                    map[Point(newX, newY)] = c
+                } catch (e: Exception) {
+                    println("[$x, $y] not in map: $tile")
+                }
+            }
+        }
+        return if (rotations == 1) map else rotate(map, rotations - 1)
+    }
 
-        val num1 = (0..9).map { getPixel(it, 0, input, flip, rotate) }.joinToString(separator = "")
-        val num2 = (0..9).map { getPixel(9, it, input, flip, rotate) }.joinToString(separator = "")
+    private fun Map<Point, Char>.flip(): Map<Point, Char> {
+        val map = mutableMapOf<Point, Char>()
+        repeat(10) { x ->
+            repeat(10) { y ->
+                val c = this[Point(x, y)]!!
+                val newX = 9 - x
+                val newY = y
+                map[Point(newX, newY)] = c
+            }
+        }
+        return map
+    }
 
-        val num3 = (0..9).map { getPixel(it, 9, input, flip, rotate) }.joinToString(separator = "")
-        val num4 = (0..9).map { getPixel(0, it, input, flip, rotate) }.joinToString(separator = "")
+    fun match(tile: Tile): Boolean {
+        return tiles.filter { pic ->
+            if (tile.tiles.count { pic.right() == it.left() } == 1) {
+                //println("Match: pic.right() == it.left(), ${pic.right()} == ${it.left()}")
+                return true
+            }
+            if (tile.tiles.count { pic.left() == it.right() } == 1) {
+                //println("Match: pic.left() == it.right(), ${pic.left()} == ${it.right()}")
+                return true
+            }
+            if (tile.tiles.count { pic.up() == it.down() } == 1) {
+                //println("Match: pic.up() == it.down(), ${pic.up()} == ${it.down()}")
+                return true
+            }
+            if (tile.tiles.count { pic.down() == it.up() } == 1) {
+                //println("Match: pic.down() == it.up(), ${pic.down()} == ${it.up()}")
+                return true
+            }
+            return false
+        }.any()
+    }
 
-        return listOf(
-            num1.replace('.', '0').replace('#', '1').toShort(2),
-            num2.replace('.', '0').replace('#', '1').toShort(2),
-            num3.replace('.', '0').replace('#', '1').toShort(2),
-            num4.replace('.', '0').replace('#', '1').toShort(2),
-        )
+    private fun Map<Point, Char>.left(): String {
+        var string = ""
+        repeat(10) { counter ->
+            string += this[Point(0, counter)]!!
+        }
+        return string
+    }
+
+    private fun Map<Point, Char>.right(): String {
+        var string = ""
+        repeat(10) { counter ->
+            string += this[Point(9, counter)]!!
+        }
+        return string
+    }
+
+    private fun Map<Point, Char>.up(): String {
+        var string = ""
+        repeat(10) { counter ->
+            string += this[Point(counter, 0)]!!
+        }
+        return string
+    }
+
+    private fun Map<Point, Char>.down(): String {
+        var string = ""
+        repeat(10) { counter ->
+            string += this[Point(counter, 9)]!!
+        }
+        return string
     }
 
 }
@@ -80,103 +149,19 @@ fun part1(input: String): Long {
     }.toMap()
 
 
-    return 0L
-}
+    // locate the corner tiles
+    val cornerList = mutableListOf<Tile>()
 
-val transformations = Transformation.values().toList()
-//
-//fun checkTileOrder(tiles: Map<Long, MutableMap<Point, Char>>, max: Int, image: List<Long>): List<Long> {
-//    val prevImageIndex = image.size
-//
-//    tiles.filterKeys { !image.contains(it) }
-//        .filter { entry ->
-//            // check all combos..
-//            if (prevImageIndex < max) {
-//                val prevImage = image.last()
-//                // check left - right side
-//                transformations.map { trans ->
-//                    (0..9).map { y ->
-//
-//                    }.any { !it }.not()
-//                }.
-//
-//            }
-//
-//
-//        }
-//        .map { entry -> checkTileOrder(tiles, max, image + listOf(entry.key)) }
-//
-//    return emptyList()
-//}
-
-
-fun getPixel(x: Int, y: Int, map: Map<Point, Char>, flip: Boolean, rotate: Int): Char {
-
-    var newX = x
-    var newY = y;
-    if (flip) {
-        newX = x
-        newY = 9 - y
+    tileMap.forEach { id, tile ->
+        val matches = tileMap.filterKeys { it != id }
+            .filterValues { tile.match(it) }
+            .count()
+        if (matches == 2) {
+            cornerList.add(tile)
+        }
     }
 
-    if (x == 0 && y >= 0) {
-        when (rotate) {
-            1 -> {
-                newY = 9
-                newX = 9 - newX
-            }
-            2 -> {
-                newY = 9 - newY
-                newX = 0
-            }
-            3 -> {
-                newX = 9-newX
-                newY = 9
-            }
-            else -> throw Exception("Bad rotation: $rotate")
-        }
-
-    } else if (x == 9 && y >= 0) {
-        when (rotate) {
-            1 -> {
-                newY = 9
-                newX = 9 - newX
-            }
-            2 -> {
-                newY = 9 - newY
-                newX = 0
-            }
-            3 -> {
-                newX = 9-newX
-                newY = 9
-            }
-            else -> throw Exception("Bad rotation: $rotate")
-        }
-    } else if (y == 0 && x >= 0) {
-        when (rotate) {
-            1 -> {
-                newY = newX
-                newX = 9
-            }
-            2 -> {
-                newY = 9
-                newX = 9 - newX
-            }
-            3 -> {
-                newY = newX
-                newX = 9
-            }
-            else -> throw Exception("Bad rotation: $rotate")
-        }
-    } else if (y == 9 && x >= 0) {
-
-    }
-
-
-    val point = Point(newX, newY)
-
-    return map[point] ?: throw Exception("Point not in tile: $point, (x: $x, y: $y, flip: $flip, rotate: $rotate)")
-
+    return cornerList.fold(1, { acc, tile -> acc * tile.id })
 }
 
 
