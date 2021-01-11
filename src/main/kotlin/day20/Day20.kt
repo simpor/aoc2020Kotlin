@@ -3,21 +3,22 @@ package day20
 import AoCUtils
 import Point
 import solveWithTiming
-import kotlin.math.sqrt
 
 
 val input = AoCUtils.readText("20.txt")
 
 fun main() {
-//    solveWithTiming({ part1(testInput) }, 20899048083289, "test 1 part 1")
-//    solveWithTiming({ part1(input) }, 16192267830719, "part 1")
+    solveWithTiming({ part1(testInput) }, 20899048083289, "test 1 part 1")
+    solveWithTiming({ part1(input) }, 16192267830719, "part 1")
 
     solveWithTiming({ part2(testInput) }, 273, "test 1 part 2")
 //    solveWithTiming({ part2(input) }, 0, "part 2")
 }
 
 data class Tile(val id: Long, val input: Map<Point, Char>) {
-    val tiles: List<Map<Point, Char>>
+    private val tiles: List<Map<Point, Char>>
+    private val maxX = input.keys.map { it.x }.max()!!
+    private     val maxY = input.keys.map { it.y }.max()!!
 
     init {
         val flipped = input.flip()
@@ -35,11 +36,11 @@ data class Tile(val id: Long, val input: Map<Point, Char>) {
 
     private fun rotate(tile: Map<Point, Char>, rotations: Int): Map<Point, Char> {
         val map = mutableMapOf<Point, Char>()
-        repeat(10) { x ->
-            repeat(10) { y ->
+        repeat(maxX+1) { x ->
+            repeat(maxY+1) { y ->
                 try {
                     val c = tile[Point(x, y)]!!
-                    val newX = 9 - y
+                    val newX = maxY - y
                     val newY = x
                     map[Point(newX, newY)] = c
                 } catch (e: Exception) {
@@ -52,10 +53,10 @@ data class Tile(val id: Long, val input: Map<Point, Char>) {
 
     private fun Map<Point, Char>.flip(): Map<Point, Char> {
         val map = mutableMapOf<Point, Char>()
-        repeat(10) { x ->
-            repeat(10) { y ->
+        repeat(maxX+1) { x ->
+            repeat(maxY+1) { y ->
                 val c = this[Point(x, y)]!!
-                val newX = 9 - x
+                val newX = maxX - x
                 val newY = y
                 map[Point(newX, newY)] = c
             }
@@ -117,7 +118,6 @@ data class Tile(val id: Long, val input: Map<Point, Char>) {
 
 fun part1(input: String): Long {
     val tileMap = parseInput(input)
-
 
     // locate the corner tiles
     val cornerList = mutableListOf<Tile>()
