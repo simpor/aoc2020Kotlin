@@ -16,9 +16,19 @@ fun main() {
 }
 
 data class Tile(val id: Long, val input: Map<Point, Char>) {
-    private val tiles: List<Map<Point, Char>>
+    val tiles: List<Map<Point, Char>>
     private val maxX = input.keys.map { it.x }.max()!!
-    private     val maxY = input.keys.map { it.y }.max()!!
+    private val maxY = input.keys.map { it.y }.max()!!
+
+    val seaMonsterPattern = "                  # \n" +
+            "#    ##    ##    ###\n" +
+            " #  #  #  #  #  #   \n".lines()
+                .mapIndexed { y, line ->
+                    line.mapIndexed { x, c ->
+                        if (c == '#') Point(x, y)
+                        null
+                    }.filterNotNull()
+                }.flatten()
 
     init {
         val flipped = input.flip()
@@ -36,8 +46,8 @@ data class Tile(val id: Long, val input: Map<Point, Char>) {
 
     private fun rotate(tile: Map<Point, Char>, rotations: Int): Map<Point, Char> {
         val map = mutableMapOf<Point, Char>()
-        repeat(maxX+1) { x ->
-            repeat(maxY+1) { y ->
+        repeat(maxX + 1) { x ->
+            repeat(maxY + 1) { y ->
                 try {
                     val c = tile[Point(x, y)]!!
                     val newX = maxY - y
@@ -53,8 +63,8 @@ data class Tile(val id: Long, val input: Map<Point, Char>) {
 
     private fun Map<Point, Char>.flip(): Map<Point, Char> {
         val map = mutableMapOf<Point, Char>()
-        repeat(maxX+1) { x ->
-            repeat(maxY+1) { y ->
+        repeat(maxX + 1) { x ->
+            repeat(maxY + 1) { y ->
                 val c = this[Point(x, y)]!!
                 val newX = maxX - x
                 val newY = y
@@ -82,38 +92,58 @@ data class Tile(val id: Long, val input: Map<Point, Char>) {
         }.any()
     }
 
-    private fun Map<Point, Char>.left(): String {
-        var string = ""
-        repeat(10) { counter ->
-            string += this[Point(0, counter)]!!
+    fun getMatch(tile: Tile): Pair<Map<Point, Char>, Map<Point, Char>>? {
+        val list = tiles.map { pic ->
+            val m1 = tile.tiles.filter { pic.right() == it.left() }
+            val m2 = tile.tiles.filter { pic.left() == it.right() }
+            val m3 = tile.tiles.filter { pic.up() == it.down() }
+            val m4 = tile.tiles.filter { pic.down() == it.up() }
+            if (m1.size == 1) Pair(pic, m1.first())
+            else if (m2.size == 1) Pair(pic, m2.first())
+            else if (m3.size == 1) Pair(pic, m3.first())
+            else if (m4.size == 1) Pair(pic, m4.first())
+            else null
+        }.filterNotNull()
+        if (list.size == 8) return list.first()
+        else if (list.size > 8) {
+            println("Hmm: $list")
         }
-        return string
+        return null
     }
 
-    private fun Map<Point, Char>.right(): String {
-        var string = ""
-        repeat(10) { counter ->
-            string += this[Point(9, counter)]!!
-        }
-        return string
-    }
 
-    private fun Map<Point, Char>.up(): String {
-        var string = ""
-        repeat(10) { counter ->
-            string += this[Point(counter, 0)]!!
-        }
-        return string
-    }
+}
 
-    private fun Map<Point, Char>.down(): String {
-        var string = ""
-        repeat(10) { counter ->
-            string += this[Point(counter, 9)]!!
-        }
-        return string
+fun Map<Point, Char>.left(): String {
+    var string = ""
+    repeat(10) { counter ->
+        string += this[Point(0, counter)]!!
     }
+    return string
+}
 
+fun Map<Point, Char>.right(): String {
+    var string = ""
+    repeat(10) { counter ->
+        string += this[Point(9, counter)]!!
+    }
+    return string
+}
+
+fun Map<Point, Char>.up(): String {
+    var string = ""
+    repeat(10) { counter ->
+        string += this[Point(counter, 0)]!!
+    }
+    return string
+}
+
+fun Map<Point, Char>.down(): String {
+    var string = ""
+    repeat(10) { counter ->
+        string += this[Point(counter, 9)]!!
+    }
+    return string
 }
 
 fun part1(input: String): Long {
@@ -137,20 +167,74 @@ fun part1(input: String): Long {
 fun part2(input: String): Long {
     val tileMap = parseInput(input)
 
-
     // locate the corner tiles
-    val cornerList = mutableListOf<Tile>()
-
-    tileMap.forEach { id, tile ->
+    val cornerList = tileMap.map { (id, tile) ->
         val matches = tileMap.filterKeys { it != id }
-            .filterValues { tile.match(it) }
-            .count()
-        if (matches == 2) {
-            cornerList.add(tile)
-        }
+            .map { entry ->
+                val match = entry.value.getMatch(tile)
+                if (match != null)
+                    Pair(id, entry.key)
+                else null
+            }
+            .filterNotNull()
+        if (matches.size == 2) {
+            Pair(tile, matches)
+        } else null
+    }.filterNotNull()
+
+    val sideList = tileMap.map { (id, tile) ->
+        val matches = tileMap.filterKeys { it != id }
+            .map { entry ->
+                val match = entry.value.getMatch(tile)
+                if (match != null)
+                    Pair(id, entry.key)
+                else null
+            }
+            .filterNotNull()
+        if (matches.size == 3) {
+            Pair(tile, matches)
+        } else null
+    }.filterNotNull()
+
+    val middleList = tileMap.map { (id, tile) ->
+        val matches = tileMap.filterKeys { it != id }
+            .map { entry ->
+                val match = entry.value.getMatch(tile)
+                if (match != null)
+                    Pair(id, entry.key)
+                else null
+            }
+            .filterNotNull()
+        if (matches.size == 4) {
+            Pair(tile, matches)
+        } else null
+    }.filterNotNull()
+
+    // locate Top left
+    val topLeftCandidates = cornerList.map { pair ->
+        val corner = pair.first
+        val temp = corner.tiles.map { tile ->
+            val firstTile = tileMap[pair.second.first().second]!!
+            val secondTile = tileMap[pair.second.last().second]!!
+
+            val leftFirstHit = firstTile.tiles.filter { tile.right() == it.left() }
+            val leftSecondHit = secondTile.tiles.filter { tile.right() == it.left() }
+
+            val downFirstHit = firstTile.tiles.filter { tile.down() == it.up() }
+            val downSecondHit = secondTile.tiles.filter { tile.down() == it.up() }
+
+            listOf(Triple(tile, leftFirstHit, downSecondHit), Triple(tile, leftSecondHit, downFirstHit))
+        }.flatten()
+            .filter { it.second.isNotEmpty() && it.third.isNotEmpty() }
+
+        Pair(corner.id, temp)
     }
 
-    return cornerList.fold(1, { acc, tile -> acc * tile.id })
+    val topLeftId = topLeftCandidates.first().first
+    val topRight = topLeftCandidates.first().second.first().second
+    val topDown = topLeftCandidates.first().second.first().third
+
+    return 0L
 }
 
 private fun parseInput(input: String): Map<Long, Tile> {
