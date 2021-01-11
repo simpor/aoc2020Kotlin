@@ -10,7 +10,7 @@ val input = AoCUtils.readText("20.txt")
 
 fun main() {
     solveWithTiming({ part1(testInput) }, 20899048083289, "test 1 part 1")
-//    solveWithTiming({ part1(input) }, 0, "part 1")
+    solveWithTiming({ part1(input) }, 16192267830719, "part 1")
 //
 //    solveWithTiming({ part2(testInput) }, 0, "test 1 part 2")
 //    solveWithTiming({ part2(input) }, 0, "part 2")
