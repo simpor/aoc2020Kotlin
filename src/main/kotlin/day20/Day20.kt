@@ -9,14 +9,13 @@ import kotlin.math.sqrt
 val input = AoCUtils.readText("20.txt")
 
 fun main() {
-    solveWithTiming({ part1(testInput) }, 20899048083289, "test 1 part 1")
-    solveWithTiming({ part1(input) }, 16192267830719, "part 1")
-//
-//    solveWithTiming({ part2(testInput) }, 0, "test 1 part 2")
+//    solveWithTiming({ part1(testInput) }, 20899048083289, "test 1 part 1")
+//    solveWithTiming({ part1(input) }, 16192267830719, "part 1")
+
+    solveWithTiming({ part2(testInput) }, 273, "test 1 part 2")
 //    solveWithTiming({ part2(input) }, 0, "part 2")
 }
 
-enum class Transformation { none, rotate, flip, flipRotate, rotateFlip }
 data class Tile(val id: Long, val input: Map<Point, Char>) {
     val tiles: List<Map<Point, Char>>
 
@@ -67,19 +66,15 @@ data class Tile(val id: Long, val input: Map<Point, Char>) {
     fun match(tile: Tile): Boolean {
         return tiles.filter { pic ->
             if (tile.tiles.count { pic.right() == it.left() } == 1) {
-                //println("Match: pic.right() == it.left(), ${pic.right()} == ${it.left()}")
                 return true
             }
             if (tile.tiles.count { pic.left() == it.right() } == 1) {
-                //println("Match: pic.left() == it.right(), ${pic.left()} == ${it.right()}")
                 return true
             }
             if (tile.tiles.count { pic.up() == it.down() } == 1) {
-                //println("Match: pic.up() == it.down(), ${pic.up()} == ${it.down()}")
                 return true
             }
             if (tile.tiles.count { pic.down() == it.up() } == 1) {
-                //println("Match: pic.down() == it.up(), ${pic.down()} == ${it.up()}")
                 return true
             }
             return false
@@ -121,6 +116,44 @@ data class Tile(val id: Long, val input: Map<Point, Char>) {
 }
 
 fun part1(input: String): Long {
+    val tileMap = parseInput(input)
+
+
+    // locate the corner tiles
+    val cornerList = mutableListOf<Tile>()
+
+    tileMap.forEach { id, tile ->
+        val matches = tileMap.filterKeys { it != id }
+            .filterValues { tile.match(it) }
+            .count()
+        if (matches == 2) {
+            cornerList.add(tile)
+        }
+    }
+
+    return cornerList.fold(1, { acc, tile -> acc * tile.id })
+}
+
+fun part2(input: String): Long {
+    val tileMap = parseInput(input)
+
+
+    // locate the corner tiles
+    val cornerList = mutableListOf<Tile>()
+
+    tileMap.forEach { id, tile ->
+        val matches = tileMap.filterKeys { it != id }
+            .filterValues { tile.match(it) }
+            .count()
+        if (matches == 2) {
+            cornerList.add(tile)
+        }
+    }
+
+    return cornerList.fold(1, { acc, tile -> acc * tile.id })
+}
+
+private fun parseInput(input: String): Map<Long, Tile> {
     val tiles = mutableMapOf<Long, MutableMap<Point, Char>>()
     var counter = 0
     var currentTileId = 0L
@@ -142,32 +175,12 @@ fun part1(input: String): Long {
         counter++
     }
 
-    val imageSize = sqrt(tiles.size.toDouble())
-
     val tileMap = tiles.map { entry ->
         Pair(entry.key, Tile(entry.key, entry.value))
     }.toMap()
-
-
-    // locate the corner tiles
-    val cornerList = mutableListOf<Tile>()
-
-    tileMap.forEach { id, tile ->
-        val matches = tileMap.filterKeys { it != id }
-            .filterValues { tile.match(it) }
-            .count()
-        if (matches == 2) {
-            cornerList.add(tile)
-        }
-    }
-
-    return cornerList.fold(1, { acc, tile -> acc * tile.id })
+    return tileMap
 }
 
-
-fun part2(input: String): Long {
-    return 0L
-}
 
 val testInput = """
 Tile 2311:
